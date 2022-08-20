@@ -293,13 +293,18 @@ def loss(y_pred, y_dev):
 def find_best_k():
     micros = []
     macros = []
-    neighbors_range = np.arange(4, 16)
-    for num_neighbors in neighbors_range:
-        y_pred, model = predict_nearest_neighbors(X_train, X_dev, num_neighbors)
-        micro, macro = loss(y_pred, y_dev)
-        micros.append(micro)
-        macros.append(macro)
-
+    neighbors_range = np.arange(4, 10)
+        for index, num_neighbors in enumerate(neighbors_range):
+        model = nearest_neighbors(num_neighbors)
+        results = cross_validation(estimator=model,
+                                   X=X_train,
+                                   y=y_train,
+                                   cv=4,
+                                   scoring=evaluate, num_neighbors=num_neighbors)
+        micro, macro = results
+        micros[index]=micro
+        macros[index]=macro
+    # plot micro and macro scores for all Number of KN Neighbors
     fig1 = go.Figure([go.Scatter(name='micro',
                                  x=neighbors_range,
                                  y=micros,
@@ -317,7 +322,7 @@ def find_best_k():
     fig1.update_layout(
         xaxis_title='Number of KN Neighbors',
         yaxis_title='F1 Score',
-        title='Choosing the Hyperparameter of K nearest Neighbors',
+        title='Choosing the Hyperparameter of K nearest Neighbors using cross validation',
         hovermode="x",
         font=dict(
             size=18,
