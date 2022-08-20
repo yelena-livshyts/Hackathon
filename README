@@ -24,4 +24,26 @@ To run the task from the command line use knn_model.py <labels_for_test_file.csv
 i.e. you only need to give our python file the labels for the test.
 
 
+=================================
+=       About      =
+=================================
+
+When receiving our data, we first preprocessed it by removing values that are errors, for
+example a negative age value or a negative tumor length etc. (code shows this clearly).
+In addition, we removed features that we thought were less relevant, or that were
+unclear so we couldn’t represent them correctly. Moreover, we replaced categorical
+features with dummy values.
+
+When implementing KNN model we split the data like so:
+  - 70% of the data is used as our train data which we will train the module on.
+  - 15% of the data is used as our deviation data to ensure we do not harm the data
+    we have and don’t base estimates on wrong data or get an over fitted module.
+  - 15% of the data is used as our test data which we run our final predictions on
+    once our model has been finalized.
+Cross Validation:
+For every k between 4 and 10 we have splitted the data to 4 parts, and
+Used each time different part as validation. In the end we took the average of the 4
+performances on the validation.
+
+
 
