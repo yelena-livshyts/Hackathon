@@ -1,0 +1,42 @@
+
+=============================
+=      File description     =
+=============================
+README - this file
+USERS - name of students
+project.pdf - explanation about our work
+
+(*)task1 package:
+test.feats.csv - File with the test data
+train.feats.csv - File with the train data
+train.labels.0 - File with the labels for task 1
+requirements.txt - Requirements file
+classifier.py - Multi label classifier for task 1
+predictions.csv - Predictions for task 1
+test.py - File to perform cross validation and make a plot
+
+(*)task2 package:
+test.feats.csv - File with the test data
+train.feats.csv - File with the train data
+train.labels.1 - File with the labels for task 2
+requirements.txt - Requirements file
+regression.py - Regression model for task 2
+predictions.csv - Predictions for task 2
+
+
+=================================
+=       Runing Instruction      =
+=================================
+(*)task 1:
+To run the task from the command line use classifier.py <labels_for_test_file.csv>,
+i.e. you only need to give our python file the labels for the test.
+Than, to use your evaluation file use our next files:
+gold_labels_processed.csv - processed labels after recieved from CL, will be created after running regression.py
+predictions.csv
+
+(*)task 2:
+To run the task from the command line use regression.py <labels_for_test_file.csv>,
+i.e. you only need to give our python file the labels for the test.
+Than, to use your evaluation file use our next files:
+gold_labels_processed.csv - processed labels after recieved from CL, will be created after running regression.py
+predictions.csv
