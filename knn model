@@ -261,7 +261,7 @@ def cross_validation(estimator, X: pd.DataFrame, y: pd.DataFrame, cv, scoring: C
     return micro * (1 / cv), macro * (1 / cv)
 
 
-def evaluate(y_pred, y_dev):
+def loss(y_pred, y_dev):
     """
 
     :param y_pred: prediction labels
@@ -288,42 +288,18 @@ def evaluate(y_pred, y_dev):
         micro = tp / (tp + fp)
 
     return micro, macro
+    
+    
+def find_best_k():
+    micros = []
+    macros = []
+    neighbors_range = np.arange(4, 16)
+    for num_neighbors in neighbors_range:
+        y_pred, model = predict_nearest_neighbors(X_train, X_dev, num_neighbors)
+        micro, macro = loss(y_pred, y_dev)
+        micros.append(micro)
+        macros.append(macro)
 
-
-if __name__ == '__main__':
-    np.random.seed(0)
-    X_train, y_train, X_test, y_test = split_data("train.feats.csv", "train.labels.0.csv")
-    X_train['אבחנה-Location of distal metastases'] = y_train[
-        'אבחנה-Location of distal metastases']
-
-    X_train['אבחנה-Location of distal metastases'] = y_train['אבחנה-Location of distal metastases']
-    X_train = prepare_train(X_train)
-    y_train = pd.DataFrame()
-    y_train["Location of distal metastases"] = X_train["Location of distal metastases"]
-    y_train = y_train.reset_index(drop=True)
-    X_train = X_train.drop("Location of distal metastases", axis=1)
-    X_train = X_train.reset_index(drop=True)
-
-
-
-
-    # find best k
-    model = None
-    neighbors_range = np.arange(4, 10)
-
-    micros = np.zeros(len(neighbors_range), )
-    macros = np.zeros(len(neighbors_range), )
-    for index, num_neighbors in enumerate(neighbors_range):
-        model = nearest_neighbors(num_neighbors)
-        results = cross_validation(estimator=model,
-                                   X=X_train,
-                                   y=y_train,
-                                   cv=4,
-                                   scoring=evaluate, num_neighbors=num_neighbors)
-        micro, macro = results
-        micros[index]=micro
-        macros[index]=macro
-    # plot micro and macro scores for all Number of KN Neighbors
     fig1 = go.Figure([go.Scatter(name='micro',
                                  x=neighbors_range,
                                  y=micros,
@@ -341,7 +317,7 @@ if __name__ == '__main__':
     fig1.update_layout(
         xaxis_title='Number of KN Neighbors',
         yaxis_title='F1 Score',
-        title='Choosing the Hyperparameter of K nearest Neighbors using cross validation',
+        title='Choosing the Hyperparameter of K nearest Neighbors',
         hovermode="x",
         font=dict(
             size=18,
@@ -349,5 +325,63 @@ if __name__ == '__main__':
         )
     )
     fig1.show()
+    return 5  # based on scores and graph
+    
+def predict(X_train, y_train, X_test, k):
+    X_train, X_test = match_data(X_train, X_test)
+    classifier = KNeighborsClassifier(n_neighbors=k)
+    classifier.fit(X_train, y_train)
+    labels_predictions = pd.DataFrame(classifier.predict(X_test), columns=y_train.columns)
+    initial = np.empty(X_test.shape[0], dtype=list)
+    for i in range(len(initial)):
+            initial[i] = []
+    for i in range(len(labels_predictions.columns)):
+        for j in range(len(initial)):
+            if (labels_predictions[labels_predictions.columns[i]]).iloc[j] == 1.0:
+                initial[j].append(y_train.columns[i])
+    y_pred = pd.DataFrame()
+    y_pred["Location of distal metastases"] = initial
+    y_pred["Location of distal metastases"] = y_pred["Location of distal metastases"].astype(str)
+    return y_pred
+    
+    
+if __name__ == '__main__':
+   np.random.seed(0)
+    gold_labels_file_name = sys.argv[1]
+    X_train, y_train, X_dev, y_dev, X_test, y_test = split_data("train.feats.csv", "train.labels.0.csv")
+
+    X_train['אבחנה-Location of distal metastases'] = y_train['אבחנה-Location of distal metastases']
+    X_train = prepare_train(X_train)
+    y_train = pd.DataFrame()
+    y_train["Location of distal metastases"] = X_train["Location of distal metastases"]
+    y_train = y_train.reset_index(drop=True)
+    X_train = X_train.drop("Location of distal metastases", axis=1)
+    X_train = X_train.reset_index(drop=True)
+
+    X_dev['אבחנה-Location of distal metastases'] = y_dev['אבחנה-Location of distal metastases']
+    X_dev = prepare_train(X_dev)
+    y_dev = pd.DataFrame()
+    y_dev["Location of distal metastases"] = X_dev["Location of distal metastases"]
+    y_dev = y_dev.reset_index(drop=True)
+    X_dev = X_dev.drop("Location of distal metastases", axis=1)
+    X_dev = X_dev.reset_index(drop=True)
+
+    y_train = prepare_labels(pd.DataFrame(y_train))
+    y_dev = prepare_labels(y_dev)
+
+    X_test = pd.read_csv("test.feats.csv")
+    gold_labels = pd.read_csv(gold_labels_file_name)
+
+    X_test['אבחנה-Location of distal metastases'] = gold_labels['אבחנה-Location of distal metastases']
+    X_test = prepare_train(X_test)
+    gold_labels = pd.DataFrame()
+    gold_labels["Location of distal metastases"] = X_test["Location of distal metastases"]
+    gold_labels = gold_labels.reset_index(drop=True)
+    X_test = X_test.drop("Location of distal metastases", axis=1)
+    X_test = X_test.reset_index(drop=True)
+    gold_labels.to_csv("gold_labels_processed.csv", index=False)
+    k = find_best_k()
+    y_pred = predict(X_train, y_train, X_test, k)
+    y_pred.to_csv("predictions.csv", index=False)
 
 
