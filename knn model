@@ -292,7 +292,7 @@ def evaluate(y_pred, y_dev):
 
 if __name__ == '__main__':
     np.random.seed(0)
-    X_train, y_train, X_test, y_test = split_data("train.feats.csv", "train.labels.0 (1).csv")
+    X_train, y_train, X_test, y_test = split_data("train.feats.csv", "train.labels.0.csv")
     X_train['אבחנה-Location of distal metastases'] = y_train[
         'אבחנה-Location of distal metastases']
 
