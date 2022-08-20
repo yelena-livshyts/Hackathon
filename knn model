@@ -291,6 +291,10 @@ def loss(y_pred, y_dev):
     
     
 def find_best_k():
+ """
+
+    :return: k=5, as seen in plotted graph, k=5 gives highest micro&macro scores
+    """
     micros = []
     macros = []
     neighbors_range = np.arange(4, 10)
@@ -333,6 +337,12 @@ def find_best_k():
     return 5  # based on scores and graph
     
 def predict(X_train, y_train, X_test, k):
+ """
+
+    :param X_train, y_train, X_test, k: train data and labels, test data to make predictions on
+    and k, the hyperparameter of knn
+    :return: prediction of test data, made with the model with hyperparameter =k
+    """
     X_train, X_test = match_data(X_train, X_test)
     classifier = KNeighborsClassifier(n_neighbors=k)
     classifier.fit(X_train, y_train)
