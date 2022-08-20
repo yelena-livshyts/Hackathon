@@ -304,7 +304,7 @@ def find_best_k():
                                    X=X_train,
                                    y=y_train,
                                    cv=4,
-                                   scoring=evaluate, num_neighbors=num_neighbors)
+                                   scoring=loss, num_neighbors=num_neighbors)
         micro, macro = results
         micros[index]=micro
         macros[index]=macro
